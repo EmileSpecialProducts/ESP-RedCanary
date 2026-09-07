@@ -1,5 +1,6 @@
-
 #include <canary.hpp>
+
+#include <WiFiManager.h> // WifiManager by tzapu  https://github.com/tzapu/WiFiManager
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
@@ -17,37 +18,11 @@ const char * canarytokenURL = (char *)"";
 bool WiFiConected = false;
 bool WiFiAPMode = false;
 bool Startreboot = false;
-// https://adafruit.github.io/Adafruit_NeoPixel/html/class_adafruit___neo_pixel.html
-#define NEOPIXEL_NUM 144
-int LedMaxCurrent = 500; // mA
-int LedPin = -1;         // Pin where the NeoPixel is connected. -1 means no LED
-Adafruit_NeoPixel strip{NEOPIXEL_NUM,(int16_t) LedPin, NEO_GRB + NEO_KHZ800};
-
-void setColor(int r, int g, int b, int start =0, int len =-1 )
-    {
-        if(LedPin>=0)
-        {
-            if(len <0) len = strip.numPixels();
-            if (len+start > strip.numPixels()) len = strip.numPixels()-start;
-            for (int i = 0; i < len; i++)
-            {
-                strip.setPixelColor(i+start, r, g, b);
-            }
-            size_t numPixels =strip.numPixels();
-            for (size_t i = 0; i < numPixels; i++)
-            {
-                
-            }
-            strip.show();       
-        }
-    }
 
 void setup(void)
 {
   pinMode(PIN_BOOT, INPUT_PULLUP);
   pinMode(PIN_LED, OUTPUT);
-
-
 #if defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32) || Serial == USBSerial
   debug_begin(115200);
 #else
@@ -80,85 +55,53 @@ void setup(void)
            // Settingsdoc[Canarys[i]]["url"] = Settingsdoc[Canarys[i]]["url"].is<char*>() ? (const char *)Settingsdoc[Canarys[i]]["url"].as<char *>() : canarytokenURL;
           }
       }
-    LedPin = Settingsdoc["LedPin"].is<int>() ? (int)Settingsdoc["LedPin"].as<int>() : -1;
-    debugf("LedPin = %d\n", LedPin);
-    if(LedPin>=0)
-      {
-      uint16_t numPixels=1; // at least 1 pixel to be able to set the brightness
-      uint16_t LedSize , LedStart;
-      LedMaxCurrent = Settingsdoc["LedMaxCurrent"].is<int>() ? (int)Settingsdoc["LedMaxCurrent"].as<int>() : 500;
-      //Settingsdoc["http"]["LedStart"].is<int>() ? debugf("http_LedStart = %d\n", (int)Settingsdoc["http"]["LedStart"].as<int>()) : debugln("http_LedStart Not found");
-      
-      for (size_t i = 0; i < sizeof(Canarys)/sizeof(Canarys[0]); i++)
-          {
-          LedStart = Settingsdoc[Canarys[i]]["LedStart"].is<int>() ? (int)Settingsdoc[Canarys[i]]["LedStart"].as<int>() : 0;
-          LedSize = Settingsdoc[Canarys[i]]["LedSize"].is<int>() ? (int)Settingsdoc[Canarys[i]]["LedSize"].as<int>() : 0;
-          if ( numPixels< (LedStart+LedSize) ) numPixels = LedStart+LedSize;
-          debugf("%s: LedStart = %d LedSize = %d numPixels=%d\n", Canarys[i], LedStart, LedSize, numPixels);
-          }
-      strip.updateLength(numPixels);
-      strip.setPin(LedPin);
-      strip.setMaxCurrent(LedMaxCurrent);
-      strip.begin();
-      setColor(255, 0, 0);
-      }
-
-    debugf("ssid = %s\n", Settingsdoc["ssid"] | "SSID Not found");
-    debugf("ssid size = %d\n", Settingsdoc["ssid"].size());
-    debugf("password = %s\n", Settingsdoc["password"] | "password Not found");
     debugln(Settingsdoc.as<String>());
-    bool OverTheAir = Settingsdoc["OverTheAir"].is<bool>() ? Settingsdoc["OverTheAir"] : false;
-    debugf("OTA %d\n", OverTheAir);
-    host = Settingsdoc["ServerName"].is<const char*>() ? (char*)Settingsdoc["ServerName"].as<const char*>() : (char *)"ESPRedCanary";    
-    debugf("ServerName = %s\n", host );
-    WiFi.hostname(host); 
-    char *ssid=Settingsdoc["ssid"].is<const char*>() ? (char*)Settingsdoc["ssid"].as<const char*>() : nullptr;
-    char *password=Settingsdoc["password"].is<const char*>() ? (char*)Settingsdoc["password"].as<const char*>() : nullptr;
-    if(ssid) debugf("ssid len = %d %s\n", strlen(ssid), ssid);
-    else debugln("Starting in AP mmode\n");
+  // WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
+  WiFiManager wm;
 
-    if(ssid!=nullptr && password!=nullptr && strlen(ssid)>0)
-        {
-        WiFi.begin( ssid , password );
-        
-        for (uint8_t i = 0; i < 20 && !WiFiConected; i++)
-            { // wait 10 seconds
-                if (WiFi.status() != WL_CONNECTED)
-                    delay(500);
-                else
-                    WiFiConected = true;
-            }
-        }
-    if (!WiFiConected)
-        {
-            char *apssid=Settingsdoc["apssid"].is<const char*>() ? (char*)Settingsdoc["apssid"].as<const char*>() : (char*)"ESPRedCanary";
-            char *appassword=Settingsdoc["appassword"].is<const char*>() ? (char*)Settingsdoc["appassword"].as<const char*>() : (char*)"";
-            int APCannel=Settingsdoc["APCannel"].is<int>() ? (int)Settingsdoc["APCannel"].as<int>() : 1;
-            if (APCannel < 1 || APCannel > 13)  APCannel = 1;   
-            debugf("Started Access Point \"%s\":\"%s\":%d\n", apssid,appassword,APCannel);
-            // WiFi.mode(WIFI_AP_STA);
-            static DNSServer dnsServer;
-            IPAddress apIP(192, 168, 4, 1);
+  // reset settings - wipe stored credentials for testing
+  // these are stored by the esp library
+  //  wm.resetSettings();
 
-            WiFi.softAP(apssid, appassword, APCannel);
-            WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0)); 
-            dnsServer.setTTL(300);
-            dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
+  // Automatically connect using saved credentials,
+  // if connection fails, it starts an access point with the specified name ( "AutoConnectAP"),
+  // if empty will auto generate SSID, if password is blank it will be anonymous AP (wm.autoConnect())
+  // then goes into a blocking loop awaiting configuration and will return success result
 
-            /* Setup the DNS server redirecting all the domains to the apIP */
-            //dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-            //dnsServer->start(DNS_PORT, F("*"), WiFi.softAPIP());
-            // This will connect to the UltraWiFiDuck 
-            dnsServer.start(53, F("*"), apIP);
-            WiFiAPMode = true;
-        }
-    WiFi.setSleep(false);
+  bool res;
+  //sets timeout until configuration portal gets turned off
+  //useful to make it all retry or go to sleep
+  //in seconds
+  wm.setTimeout(180);
+
+  res = wm.autoConnect(host); // auto generated AP name from chipid
+  // res = wm.autoConnect(DeviceName); // anonymous ap
+  // res = wm.autoConnect("AutoConnectAP","password"); // password protected ap
+  if (!res)
+  {
+    debugln("Failed to connect Restarting");
+    delay(5000);
+    if (digitalRead(PIN_BOOT) == LOW)
+    {
+      wm.resetSettings();
+    }
+    ESP.restart();
+  }
+  else
+  {
+    // if you get here you have connected to the WiFi
+  }
+
+  WiFi.setSleep(false);
   esp_wifi_set_ps(WIFI_PS_NONE); // Esp32 enters the power saving mode by default,
   debug("Connected! IP address: ");
   debugln(WiFi.localIP());
   debug("Connecting to ");
   debugln(WiFi.SSID());
-
+  host = Settingsdoc["ServerName"].is<const char*>() ? (char*)Settingsdoc["ServerName"].as<const char*>() : (char *)"ESPRedCanary";    
+  debugf("ServerName = %s\n", host );
+  WiFi.hostname(host); 
+    
   if (MDNS.begin(host))
   {
     MDNS.addService("http", "tcp", 80);
@@ -168,7 +111,8 @@ void setup(void)
     debug(".local or http://");
     debugln(WiFi.localIP());
   }
-
+bool OverTheAir = Settingsdoc["OverTheAir"].is<bool>() ? Settingsdoc["OverTheAir"] : false;
+  debugf("OTA %d\n", OverTheAir);
 if(OverTheAir)
   {
   // Port defaults to 3232
@@ -281,32 +225,9 @@ if(OverTheAir)
   message += " Build Date: " + String(__DATE__ " " __TIME__);
   Log(message);
   NextTime = millis() + 1000;
-  setColor(0, 0, 0);
   StartWiFiNetworks();
   CanarySetup();
 }  
-
-void resetWifipasswords()
-{
-  File file = LittleFS.open(JSONCONFIGFILE, "r");
-  deserializeJson(Settingsdoc, file);
-  file.close();
-  Settingsdoc["ssid"] = "";
-  Settingsdoc["password"] = "";
-  Settingsdoc["apssid"] = "ESP-RedCanary";
-  Settingsdoc["appassword"] = "";
-  Settingsdoc["ServerName"] = "ESPRedCanary";
-  Settingsdoc["APCannel"] = 1;
-  file = LittleFS.open(JSONCONFIGFILE, "w");
-  if (file)
-  {
-    serializeJsonPretty(Settingsdoc, file);
-    file.close();
-    debugln("WiFi settings reset.");
-  }
-  else
-    debugln("Failed to open config file for writing");
-}
 void loop(void)
 {
   unsigned long Time = millis();
@@ -342,21 +263,7 @@ void loop(void)
   if (Time >= NextTime) // This will fail after 71 days
   {
     NextTime = millis() + 1000;
-    currentTimeSeconds++; 
-    if(LedPin>=0)
-    {
-      for (int f=0;f<5;f++){
-        strip.setPixelColor(0, f*2, f*2, f*2);
-        strip.show();       
-        delay(10);
-      }   
-      for (int f=5;f>=0;f--){
-        strip.setPixelColor(0, f*2, f*2, f*2);
-        strip.show();       
-        delay(10);
-      }
-    }
-    
+    currentTimeSeconds++;     
     if (OTAUploadBusy > 0)
       OTAUploadBusy--;
     if (digitalRead(PIN_BOOT) == LOW)
@@ -364,18 +271,16 @@ void loop(void)
       if (++Config_Reset_Counter > 2)
       {
         // open the webserver after 3 seconds
-        setColor(0,255, 0);
       }
       if (++Config_Reset_Counter > 10)
       {                 // press the BOOT 10 sec to reset the WifiManager Settings
-        resetWifipasswords();
+        WiFiManager wm; // WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
+        delay(500);
+        wm.resetSettings();
         debugln("Resetting WiFi settings and rebooting!");
         while(digitalRead(PIN_BOOT) == LOW)
         {
-            setColor(0,255, 0);
-            delay(100);
-            setColor(0, 0, 255);
-            delay(100);
+
         }
         ESP.restart();
       }
@@ -386,15 +291,4 @@ void loop(void)
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 
