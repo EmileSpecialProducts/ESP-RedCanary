@@ -1,4 +1,44 @@
 #include "canary.hpp"
+
+namespace {
+bool parseIPv4(String value, uint32_t &address)
+{
+    value.trim();
+    IPAddress parsed;
+    if (!parsed.fromString(value.c_str())) return false;
+
+    address = (static_cast<uint32_t>(parsed[0]) << 24) |
+              (static_cast<uint32_t>(parsed[1]) << 16) |
+              (static_cast<uint32_t>(parsed[2]) << 8) |
+              parsed[3];
+    return true;
+}
+
+bool matchesIPv4Cidr(String candidate, String cidr)
+{
+    const int separator = cidr.indexOf('/');
+    if (separator < 1) return false;
+
+    String networkText = cidr.substring(0, separator);
+    String prefixText = cidr.substring(separator + 1);
+    prefixText.trim();
+    if (prefixText.length() == 0) return false;
+    for (size_t index = 0; index < prefixText.length(); index++) {
+        if (!isDigit(prefixText[index])) return false;
+    }
+
+    const int prefixLength = prefixText.toInt();
+    if (prefixLength < 0 || prefixLength > 32) return false;
+
+    uint32_t candidateAddress;
+    uint32_t networkAddress;
+    if (!parseIPv4(candidate, candidateAddress) || !parseIPv4(networkText, networkAddress)) return false;
+
+    const uint32_t mask = prefixLength == 0 ? 0 : 0xffffffffUL << (32 - prefixLength);
+    return (candidateAddress & mask) == (networkAddress & mask);
+}
+}
+
 void InitWhitelisted()
 {
 
@@ -38,8 +78,10 @@ bool IsWhitelisted(String ip)
         JsonArray ips = Settingsdoc["Whitelisting"]["ips"].as<JsonArray>();
         for (JsonVariant ipno : ips) 
         {
-            debugf("Whitelisting IP: %s\n", ipno.as<const char*>());
-            if( String(ipno.as<const char*>()) == ip )
+            String whitelistEntry = ipno.as<String>();
+            whitelistEntry.trim();
+            debugf("Whitelisting IP: %s\n", whitelistEntry.c_str());
+            if (whitelistEntry == ip || matchesIPv4Cidr(ip, whitelistEntry))
             {
                 debugln("Device is Whitelisted");
                 return true;
