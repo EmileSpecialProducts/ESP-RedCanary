@@ -13,7 +13,6 @@
 #include <DNSServer.h>
 #include <ArduinoOTA.h>  // ArduinoOTA by Arduino, Juraj  https://github.com/JAndrassy/ArduinoOTA
 #include <ESPAsyncWebServer.h> // https://github.com/ESP32Async/ESPAsyncWebServer
-#include <Adafruit_NeoPixel.h>
 #include <LittleFS.h>
 #include <FS.h>
 #include <NTPClient.h>   //  https://github.com/arduino-libraries/NTPClient
