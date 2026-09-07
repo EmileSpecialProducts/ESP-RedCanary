@@ -89,6 +89,7 @@ function createFileUploader(element, tree, editor) {
       if (xmlHttp.status != 200) alert("ERROR[" + xmlHttp.status + "]: " + xmlHttp.responseText);
       else {
         tree.refreshPath(path.value);
+
       }
     }
     GetDiskInfo();
@@ -164,7 +165,12 @@ function createTree(element, editor) {
   document.getElementById(element).appendChild(treeRoot);
 
   function loadDownload(path) {
-    document.getElementById('download-frame').src = path + "?download=true";
+    //document.getElementById('download-frame').src = path + "?download=true";
+    //document.getElementById('download-frame').setAttribute('download', path);
+    //document.getElementById('download-frame').src = path;
+    //document.getElementById("editor").style.display = "none";
+    //preview.style.display = "block";
+    //preview.innerHTML = '<img src="' + path + '" style="max-width:100%; max-height:100%; margin:auto; display:block;" />';
   }
 
   function loadPreview(path) {
@@ -247,9 +253,10 @@ function createTree(element, editor) {
     }
     var download = document.createElement("li");
     list.appendChild(download);
-    download.innerHTML = "<span>Download</span>";
+//    download.innerHTML = "<span>Download</span>";
+    download.innerHTML = "<span><a href='"+path+"' download>Download</a></span>";
     download.onclick = function (e) {
-      loadDownload(path);
+      //loadDownload(path);
       if (document.body.getElementsByClassName('contextMenu').length > 0) document.body.removeChild(el);
     };
     var delFile = document.createElement("li");
@@ -404,9 +411,14 @@ function createTree(element, editor) {
         case "png":
         case "jpg":
         case "jpeg":
+        case "jpe":
+        case "jif":
+        case "jfif":  
         case "gif":
         case "ico":
         case "bmp":
+        case "apng":
+        case "avif":
         case "webp":
         case "svg":
         case "tiff":
@@ -415,6 +427,7 @@ function createTree(element, editor) {
         case "heif":
         case "avif":
         case "jfif":
+        case "xbm":
           return true;
       }
     }
