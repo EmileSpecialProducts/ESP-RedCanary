@@ -1,5 +1,5 @@
 #include <canary.hpp>
-AsyncWebServer server(80);
+AsyncWebServer *server=nullptr;
 File uploadFile;
 
 void reply(AsyncWebServerRequest *request, int code, const char *type, const uint8_t *data, size_t len)
@@ -69,7 +69,12 @@ void Log(String Str)
 extern bool WiFiAPMode;
 void setup_webserver()
 {
-  server.on("/diskinfo", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
+  int Portnumber = Settingsdoc["ServerPort"].is<const int>() ? (int)Settingsdoc["ServerPort"].as<const int>() : (int)80; 
+  debugf("Setup WebServer on Port %d\n", Settingsdoc["ServerPort"].as<const int>());
+  debugf("Starting WebServer on Port %d\n", Portnumber);
+  server = new AsyncWebServer(Portnumber);
+  if(server==nullptr){ debugln("Failed to create AsyncWebServer"); return; }
+  server->on("/diskinfo", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
     {
       String output="";
         output+= "{\"totalBytes\":" + String(LittleFS.totalBytes())+",";
@@ -78,7 +83,7 @@ void setup_webserver()
         request->send(200, "text/json", output);
     });
 
-server.on("/list", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
+server->on("/list", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
     {
         if (!request->hasArg("dir"))
           return request->send(500, "text/plain", "BAD ARGS\r\n"); 
@@ -109,7 +114,7 @@ server.on("/list", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *re
         dir.close();
       });
       
-server.on("/edit", AsyncWebRequestMethod::HTTP_PUT, [](AsyncWebServerRequest *request)
+server->on("/edit", AsyncWebRequestMethod::HTTP_PUT, [](AsyncWebServerRequest *request)
 {
   debugln("Create ");
   if (request->args() == 0)
@@ -138,7 +143,7 @@ server.on("/edit", AsyncWebRequestMethod::HTTP_PUT, [](AsyncWebServerRequest *re
   request->send(200, "text/plain", ""); 
 });
 
-server.on("/edit", AsyncWebRequestMethod::HTTP_DELETE, [](AsyncWebServerRequest *request)
+server->on("/edit", AsyncWebRequestMethod::HTTP_DELETE, [](AsyncWebServerRequest *request)
 {
   debugln("Delete ");
   if (request->args() == 0)
@@ -163,7 +168,7 @@ server.on("/edit", AsyncWebRequestMethod::HTTP_DELETE, [](AsyncWebServerRequest 
   } 
 });
 
-server.on("/edit", AsyncWebRequestMethod::HTTP_POST, 
+server->on("/edit", AsyncWebRequestMethod::HTTP_POST, 
         [](AsyncWebServerRequest *request)
           {
             //debugln("File upload completed " + request->url());
@@ -183,7 +188,7 @@ server.on("/edit", AsyncWebRequestMethod::HTTP_POST,
             } 
           }
     );
-    server.on("/save-config", AsyncWebRequestMethod::HTTP_POST , [](AsyncWebServerRequest *request){
+    server->on("/save-config", AsyncWebRequestMethod::HTTP_POST , [](AsyncWebServerRequest *request){
     // Handle POST in body
     }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
         JsonDocument doc;
@@ -203,7 +208,7 @@ server.on("/edit", AsyncWebRequestMethod::HTTP_POST,
         request->send(400, "text/plain", "Invalid JSON");
         }
       });
-    server.on("/reboot", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
+    server->on("/reboot", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
     {
         AsyncWebServerResponse *response =
             request->beginResponse(200, "text/html", "Rebooting");
@@ -212,7 +217,7 @@ server.on("/edit", AsyncWebRequestMethod::HTTP_POST,
             Startreboot=true;
             debugln("Rebooting...");
     });
-    server.on("/wifi-config", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
+    server->on("/wifi-config", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
     {
         JsonDocument Wifidoc;
             scanWiFiNetworks(Wifidoc); 
@@ -230,10 +235,10 @@ server.on("/edit", AsyncWebRequestMethod::HTTP_POST,
             }
       });
       
-    server.on("/", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
+    server->on("/", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
     { request->redirect("/index.html"); });
     
-    server.onNotFound([](AsyncWebServerRequest *request)
+    server->onNotFound([](AsyncWebServerRequest *request)
     { 
         debugf("url NotFound %s , Method =%s\n", request->url().c_str(), request->methodToString());
         if (request->method() == HTTP_GET)
@@ -266,10 +271,11 @@ server.on("/edit", AsyncWebRequestMethod::HTTP_POST,
             reply(request, 404, "text/html", error404_html, sizeof(error404_html) - 1);
         }
     });
+ 
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*"); 
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, HEAD");
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "content-type");
-  server.begin();  
+  server->begin();  
   debugln("HTTP server started");
   }
 
