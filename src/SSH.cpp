@@ -8,8 +8,11 @@ void setup_ssh()
 {
   SSHenabled=Settingsdoc["SSH"]["enable"] | false;
   sshHookweb=Settingsdoc["SSH"]["url"] | "";
+  if (SSHenabled) 
+  { 
     debugf("SSH Hook URL: %s\n", sshHookweb.c_str());
-      if (SSHenabled) sshServer.begin();
+    sshServer.begin();
+  }
 }
 
 void loop_ssh()
