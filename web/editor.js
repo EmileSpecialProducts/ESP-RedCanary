@@ -6,7 +6,7 @@ link.href = "https://emilespecialproducts.github.io/ESP-RedCanary/editor.css";
 document.head.appendChild(link);
 
 var script = document.createElement("script");
-script.src = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.2/ace.js";
+script.src = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.44.0/ace.js";
 script.type = "text/javascript";
 var Currentfilename;
 var CurFile = document.createElement("span");
@@ -584,8 +584,8 @@ function createEditor(element, file, lang, theme, type) {
     bindKey: { win: 'Ctrl-S', mac: 'Command-S' },
     exec: function (editor) {
       httpPost(file, editor.getValue() + "", type);
-      treeRoot.removeChild(treeRoot.childNodes[0]);
-      httpGet(treeRoot, "/");
+      //treeRoot.removeChild(treeRoot.childNodes[0]);
+      //httpGet(treeRoot, "/");
     },
     readOnly: false
   });
