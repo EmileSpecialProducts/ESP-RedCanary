@@ -41,21 +41,28 @@ void setup(void)
     debugln(" Started ");
   
     File file = LittleFS.open(JSONCONFIGFILE, "r");
-    deserializeJson(Settingsdoc, file);
-    file.close();
-    char Canarys[][10] = {"Http","Https","Httpa","SSH","Ftp","Telnet","Rdp","Modbus","Ping"};
-    canarytokenURL  = Settingsdoc["canarytokenURL"].is<const char*>() ? (char*)Settingsdoc["canarytokenURL"].as<const char*>() : (char *)"";
-    if(strlen(canarytokenURL)>0)
-      { // set all canarytoken URL if canarytokenURL is set and not empty
-      debugf("canarytokenURL = %s\n", canarytokenURL);
-      for (size_t i = 0; i < sizeof(Canarys)/sizeof(Canarys[0]); i++)
-          {
-            // ToDO: check if the specific canary URL is set and not empty, if not set it to canarytokenURL
-           // if( !Settingsdoc[Canarys[i]]["url"].is<const char*>() || strlen( (const char *)Settingsdoc[Canarys[i]]["url"].as<const char *>() )==0 )
-           // Settingsdoc[Canarys[i]]["url"] = Settingsdoc[Canarys[i]]["url"].is<char*>() ? (const char *)Settingsdoc[Canarys[i]]["url"].as<char *>() : canarytokenURL;
-          }
-      }
-    debugln(Settingsdoc.as<String>());
+    if (file)
+    {
+      deserializeJson(Settingsdoc, file);
+      file.close();
+      char Canarys[][10] = {"Http","Https","Httpa","SSH","Ftp","Telnet","Rdp","Modbus","Ping"};
+      canarytokenURL  = Settingsdoc["canarytokenURL"].is<const char*>() ? (char*)Settingsdoc["canarytokenURL"].as<const char*>() : (char *)"";
+      if(strlen(canarytokenURL)>0)
+        { // set all canarytoken URL if canarytokenURL is set and not empty
+        debugf("canarytokenURL = %s\n", canarytokenURL);
+        for (size_t i = 0; i < sizeof(Canarys)/sizeof(Canarys[0]); i++)
+            {
+              // ToDO: check if the specific canary URL is set and not empty, if not set it to canarytokenURL
+            // if( !Settingsdoc[Canarys[i]]["url"].is<const char*>() || strlen( (const char *)Settingsdoc[Canarys[i]]["url"].as<const char *>() )==0 )
+            // Settingsdoc[Canarys[i]]["url"] = Settingsdoc[Canarys[i]]["url"].is<char*>() ? (const char *)Settingsdoc[Canarys[i]]["url"].as<char *>() : canarytokenURL;
+            }
+        }
+      debugln(Settingsdoc.as<String>());
+    }
+    else
+    {
+      debugln("Failed to open " JSONCONFIGFILE " file for reading");
+    }
   // WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wm;
 
@@ -111,19 +118,16 @@ void setup(void)
     debug(".local or http://");
     debugln(WiFi.localIP());
   }
-bool OverTheAir = Settingsdoc["OverTheAir"].is<bool>() ? Settingsdoc["OverTheAir"] : false;
-  debugf("OTA %d\n", OverTheAir);
-if(OverTheAir)
-  {
+
+#if defined(OTAPASSWORD)
+#warning "OTA enabled and password is set to: " OTAPASSWORD " " 
+  debugln("OTA disabled");
   // Port defaults to 3232
   // ArduinoOTA.setPort(3232);
 
   // Hostname defaults to esp3232-[MAC]
   ArduinoOTA.setHostname(host);
-
-  // No authentication by default
-  char *OTAPassword=Settingsdoc["OTAPassword"].is<const char*>() ? (char*)Settingsdoc["OTAPassword"].as<const char*>() : nullptr;
-  if(OTAPassword) ArduinoOTA.setPassword(OTAPassword);
+  ArduinoOTA.setPassword(OTAPASSWORD);
 
   // Password can be set with it's md5 value as well
   // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
@@ -161,8 +165,7 @@ if(OverTheAir)
     } 
   });
   ArduinoOTA.begin();
-  }
-
+#endif
   setup_webserver();  
 
   timeClient.begin();
@@ -232,12 +235,14 @@ void loop(void)
 {
   unsigned long Time = millis();
   yield();
+#if defined(OTAPASSWORD)
   ArduinoOTA.handle();
   if (OTAUploadBusy == 0)
   { // Do not do things that take time when OTA is busy
     //server.handleClient();
     CanaryLoop();
   }
+#endif
   if(Startreboot) ESP.restart();
     
   if (PreviousTimeDay != (currentTimeSeconds / (60 * 60 * 24)))

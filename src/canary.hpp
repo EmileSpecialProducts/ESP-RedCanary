@@ -11,7 +11,9 @@
 #include <HTTPClient.h>
 
 #include <DNSServer.h>
+#if defined(OTAPASSWORD)
 #include <ArduinoOTA.h>  // ArduinoOTA by Arduino, Juraj  https://github.com/JAndrassy/ArduinoOTA
+#endif
 #include <ESPAsyncWebServer.h> // https://github.com/ESP32Async/ESPAsyncWebServer
 #include <LittleFS.h>
 #include <FS.h>
