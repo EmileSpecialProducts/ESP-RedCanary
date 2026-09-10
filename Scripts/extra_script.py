@@ -162,7 +162,8 @@ def PostBuild(source, target, env):
         ## Bit this will will not build in the same upload command.
         env.Execute(mklittlefs +" -a -c "+littlefsdir + " -s "+ str(littlefs_size) + " " + source + "/littlefs.bin")
         # list all the files 
-        env.Execute(mklittlefs +" -l " + source + "/littlefs.bin")    
+        # List is not working if the littlefs.bin file contains directories, so it is not possible to use the -l option to list the files in the littlefs.bin file.
+        # env.Execute(mklittlefs +" -l " + source + "/littlefs.bin")    
         print("littlefs From:"+ source + "/littlefs.bin" + " To: ",destination + "/littlefs.bin")
         shutil.copyfile(source + "/littlefs.bin", destination + "/littlefs.bin")
         ################################################################################
