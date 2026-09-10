@@ -1,6 +1,6 @@
 {
   "name": "ESP-RedCanary",
-  "version": "2026.03.28",
+  "version": "2026.09.10",
   "home_assistant_domain": "ESP-RedCanary",
   "funding_url": "https://github.com/EmileSpecialProducts/ESP-RedCanary",
   "builds": 
@@ -12,7 +12,7 @@
         { "path": "./esp32_32MB_dio/partitions.bin", "offset": 32768 },
         { "path": "./esp32_32MB_dio/boot_app0.bin", "offset": 57344 },
         { "path": "./esp32_32MB_dio/firmware.bin", "offset": 65536 },
-        { "path": "./esp32_32MB_dio/littlefs.bin", "offset": 2686976 }
+        { "path": "./esp32_32MB_dio/littlefs.bin", "offset": 2031616 }
       ]
     },
     {
@@ -22,7 +22,7 @@
         { "path": "./esp32c3_32MB_dio/partitions.bin", "offset": 32768 },
         { "path": "./esp32c3_32MB_dio/boot_app0.bin", "offset": 57344 },
         { "path": "./esp32c3_32MB_dio/firmware.bin", "offset": 65536 },
-        { "path": "./esp32c3_32MB_dio/littlefs.bin", "offset": 2686976 }
+        { "path": "./esp32c3_32MB_dio/littlefs.bin", "offset": 2031616 }
       ]
     },
     {
@@ -32,7 +32,7 @@
         { "path": "./esp32c5_32MB_qio/partitions.bin", "offset": 32768 },
         { "path": "./esp32c5_32MB_qio/boot_app0.bin", "offset": 57344 },
         { "path": "./esp32c5_32MB_qio/firmware.bin", "offset": 65536 },
-        { "path": "./esp32c5_32MB_qio/littlefs.bin", "offset": 2686976 }
+        { "path": "./esp32c5_32MB_qio/littlefs.bin", "offset": 2031616 }
       ]
     },
     {
@@ -42,7 +42,7 @@
         { "path": "./esp32c6_32MB_qio/partitions.bin", "offset": 32768 },
         { "path": "./esp32c6_32MB_qio/boot_app0.bin", "offset": 57344 },
         { "path": "./esp32c6_32MB_qio/firmware.bin", "offset": 65536 },
-        { "path": "./esp32c6_32MB_qio/littlefs.bin", "offset": 2686976 }
+        { "path": "./esp32c6_32MB_qio/littlefs.bin", "offset": 2031616 }
       ]
     },
     {
@@ -52,7 +52,7 @@
         { "path": "./esp32s2_32MB_dio/partitions.bin","offset": 32768 },
         { "path": "./esp32s2_32MB_dio/boot_app0.bin", "offset": 57344 },
         { "path": "./esp32s2_32MB_dio/firmware.bin", "offset": 65536 },
-        { "path": "./esp32s2_32MB_dio/littlefs.bin", "offset": 2686976 }
+        { "path": "./esp32s2_32MB_dio/littlefs.bin", "offset": 2031616 }
       ]
     },
     {
@@ -62,7 +62,7 @@
         { "path": "./esp32s3_32MB_qio/partitions.bin", "offset": 32768 },
         { "path": "./esp32s3_32MB_qio/boot_app0.bin", "offset": 57344 },
         { "path": "./esp32s3_32MB_qio/firmware.bin", "offset": 65536 },
-        { "path": "./esp32s3_32MB_qio/littlefs.bin", "offset": 2686976 }
+        { "path": "./esp32s3_32MB_qio/littlefs.bin", "offset": 2031616 }
       ]
     }
   ]
