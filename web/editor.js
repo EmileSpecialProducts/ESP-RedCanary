@@ -13,10 +13,10 @@ var CurFile = document.createElement("span");
 var DiskInfo;
 
 function spacein_KB_MB_GB(bytes) {
-  if (bytes < 1024) return bytes + " Bytes";
-  else if (bytes < 1024 * 1024) return Math.floor(bytes / 1024) + " KB";
-  else if (bytes < 1024 * 1024 * 1024) return Math.floor(bytes / (1024 * 1024)) + " MB";
-  else return Math.floor(bytes / (1024 * 1024 * 1024)) + " GB";
+  if (bytes < 1024) return bytes.toFixed(2) + " Bytes";
+  else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
+  else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
 }
 function updatefilenme() {
   var innerHTML = '<span STYLE="font-family: arial; font-size: 14px;">  ' + Currentfilename;
