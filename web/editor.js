@@ -11,11 +11,18 @@ script.type = "text/javascript";
 var Currentfilename;
 var CurFile = document.createElement("span");
 var DiskInfo;
+
+function spacein_KB_MB_GB(bytes) {
+  if (bytes < 1024) return bytes + " Bytes";
+  else if (bytes < 1024 * 1024) return Math.floor(bytes / 1024) + " KB";
+  else if (bytes < 1024 * 1024 * 1024) return Math.floor(bytes / (1024 * 1024)) + " MB";
+  else return Math.floor(bytes / (1024 * 1024 * 1024)) + " GB";
+}
 function updatefilenme() {
   var innerHTML = '<span STYLE="font-family: arial; font-size: 14px;">  ' + Currentfilename;
   if (typeof DiskInfo !== 'undefined') 
   {
-    innerHTML += "  Free = " + Math.floor(DiskInfo.freeBytes/1024)+"Kb Used = "+ Math.floor(DiskInfo.usedBytes/1024)+"Kb Total = "+Math.floor(DiskInfo.totalBytes/1024)+"Kb";
+    innerHTML += "  Free = " + spacein_KB_MB_GB(DiskInfo.freeBytes) + " Used = " + spacein_KB_MB_GB(DiskInfo.usedBytes) + " Total = " + spacein_KB_MB_GB(DiskInfo.totalBytes);
   }
   innerHTML +=" </span>"
   //console.log(innerHTML);
