@@ -62,7 +62,7 @@ String urlDecode(const String &text)
 void Log(String Str)
 {
   debugln(Str);
-  File LogFile = LittleFS.open("/log.txt", FILE_APPEND);
+  File LogFile = FILESYSTEM.open("/log.txt", FILE_APPEND);
   LogFile.println(Str);
   LogFile.close();
 }
@@ -77,9 +77,9 @@ void setup_webserver()
   server->on("/diskinfo", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
     {
       String output="";
-        output+= "{\"totalBytes\":" + String(LittleFS.totalBytes())+",";
-        output+= "\"usedBytes\":" + String(LittleFS.usedBytes())+","; 
-        output+= "\"freeBytes\":" + String(LittleFS.totalBytes()-LittleFS.usedBytes())+"}";            
+        output+= "{\"totalBytes\":" + String(FILESYSTEM.totalBytes())+",";
+        output+= "\"usedBytes\":" + String(FILESYSTEM.usedBytes())+","; 
+        output+= "\"freeBytes\":" + String(FILESYSTEM.totalBytes()-FILESYSTEM.usedBytes())+"}";            
         request->send(200, "text/json", output);
     });
 
@@ -89,8 +89,8 @@ server->on("/list", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *r
           return request->send(500, "text/plain", "BAD ARGS\r\n"); 
         String path = request->arg("dir");
         String output="[";
-        if(path != "/" && !LittleFS.exists(path)) return request->send(500, "text/plain", "BAD PATH\r\n"); 
-        File dir = LittleFS.open(path);
+        if(path != "/" && !FILESYSTEM.exists(path)) return request->send(500, "text/plain", "BAD PATH\r\n"); 
+        File dir = FILESYSTEM.open(path);
         path = String();
         if (!dir.isDirectory())
         {
@@ -121,14 +121,14 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_PUT, [](AsyncWebServerRequest *r
   return request->send(500, "text/plain", "BAD ARGS\r\n");  
   String path = request->arg(0);
   debugln("Create: " + path);
-  if (path == "/" || LittleFS.exists(path))
+  if (path == "/" || FILESYSTEM.exists(path))
   {
     request->send(500, "text/plain", "BAD PATH\r\n"+ path); 
     return;
   }
   if(path.indexOf('.') > 0){
     debugln("CreateFile: " + path);
-    File file = LittleFS.open(path, "w");
+    File file = FILESYSTEM.open(path, "w");
     if (file)
     {
       file.write((const uint8_t *)" ", 1); // must write one char
@@ -138,7 +138,7 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_PUT, [](AsyncWebServerRequest *r
   else
   {
     debugln("CreateDir: " + path);
-    LittleFS.mkdir(path);
+    FILESYSTEM.mkdir(path);
   }
   request->send(200, "text/plain", ""); 
 });
@@ -151,19 +151,19 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_DELETE, [](AsyncWebServerRequest
   String path = request->arg(0);
   debugln("Delete: " + path);
   if(path.indexOf('.') > 0){
-    if (path == "/" || !LittleFS.exists(path))
+    if (path == "/" || !FILESYSTEM.exists(path))
     {
       request->send(500, "text/plain", "BAD PATH\r\n" + path); 
       return;
     }
     debugln("Delete file "+path);
     
-    LittleFS.remove(path);
+    FILESYSTEM.remove(path);
     request->send(200, "text/plain", "");
   } else
   {
     debugln("Delete Dir "+path);
-    LittleFS.rmdir(path);
+    FILESYSTEM.rmdir(path);
     request->send(200, "text/plain", "");
   } 
 });
@@ -180,7 +180,7 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_POST,
           {
             //debugf("Upload[%s]: start=%u, len=%u, final=%d\n", filename.c_str(), index, len, final);
             if (!index) {
-            request->_tempFile = LittleFS.open("/"+ filename, "w+");
+            request->_tempFile = FILESYSTEM.open("/"+ filename, "w+");
             }
             if (len) request->_tempFile.write(data, len);
             if (final) {
@@ -195,7 +195,7 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_POST,
         DeserializationError error = deserializeJson(doc, data);
         if (!error) {
             
-        File file = LittleFS.open(JSONCONFIGFILE, FILE_WRITE);
+        File file = FILESYSTEM.open(JSONCONFIGFILE, FILE_WRITE);
         if (file) {
             //serializeJson(doc, file);
             serializeJsonPretty(doc, file);
@@ -243,9 +243,9 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_POST,
         debugf("url NotFound %s , Method =%s\n", request->url().c_str(), request->methodToString());
         if (request->method() == HTTP_GET)
         {
-            if (LittleFS.exists(request->url())) // exists will give a error in the error log see: https://github.com/espressif/arduino-esp32/issues/7615
+            if (FILESYSTEM.exists(request->url())) // exists will give a error in the error log see: https://github.com/espressif/arduino-esp32/issues/7615
             {
-                request->send(LittleFS, request->url(), String(), false);
+                request->send(FILESYSTEM, request->url(), String(), false);
             }
             else
             {

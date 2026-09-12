@@ -18,7 +18,10 @@ const char * canarytokenURL = (char *)"";
 bool WiFiConected = false;
 bool WiFiAPMode = false;
 bool Startreboot = false;
-
+#if defined(USE_SPI_CARD) && !defined(CONFIG_IDF_TARGET_ESP32)
+SPIClass * sd_spi = NULL;
+#endif
+ 
 void setup(void)
 {
   pinMode(PIN_BOOT, INPUT_PULLUP);
@@ -34,13 +37,57 @@ void setup(void)
     debugf("esp_idf_version: %d.%d.%d\n" ,ESP_IDF_VERSION_MAJOR ,ESP_IDF_VERSION_MINOR,ESP_IDF_VERSION_PATCH);
     debugf("arduino_version: %d.%d.%d\n" ,ESP_ARDUINO_VERSION_MAJOR,ESP_ARDUINO_VERSION_MINOR,ESP_ARDUINO_VERSION_PATCH);
     debugf("Build Date: " __DATE__ " " __TIME__ "\n");
-    debug("Initializing LittleFS...");
+#if defined(USE_SPI_CARD)
+  debug("Initializing SDCard FS...");
+
+  debugf("USE_SPI_CARD SD_PIN_CS = %d SD_PIN_MOSI = %d SD_PIN_MISO = %d SD_PIN_SCK = %d\n", SD_PIN_CS, SD_PIN_MOSI, SD_PIN_MISO, SD_PIN_SCK);
+
+#if defined(CONFIG_IDF_TARGET_ESP32)
+  if (SD.begin(SD_PIN_CS)){
+    debugln("Started SDCard FS");
+  } else {
+    debugln("Mount Failed");
+  }
+#else // CONFIG_IDF_TARGET_ESP32
+  // FSPI 0  // ESP32C2, C3, C5, C6, C61, H2, S2, S3, P4 - SPI 2 bus
+  // HSPI 1  // ESP32S2, S3, P4 - SPI 3 bus
+
+    #if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C6)
+      sd_spi = new SPIClass(FSPI);
+    #else
+      sd_spi = new SPIClass(); // HSPI
+    #endif
+
+    int SDmaxSpeed =50;
+    bool hasSD = false;
+    sd_spi->begin(SD_PIN_SCK,SD_PIN_MISO,SD_PIN_MOSI,SD_PIN_CS);
+    while (SDmaxSpeed>4 && hasSD==false)
+    {
+      if (SD.begin(SD_PIN_CS, *sd_spi, 1000000UL * SDmaxSpeed)){
+      debugf("Started SDCard FS Speed: %d\n", SDmaxSpeed);
+      hasSD = true;
+      } else SDmaxSpeed-=4;
+    }  
+#endif // CONFIG_IDF_TARGET_ESP32
+#elif defined(USE_MMC_CARD)
+  debugln("Initializing MMCCard FS...");
+  debugf("USE_MMC_CARD MMC_CLK = %d MMC_CMD = %d MMC_DATA0 = %d MMC_DATA1 = %d MMC_DATA2 = %d MMC_DATA3 = %d\n", MMC_CLK, MMC_CMD, MMC_DATA0, MMC_DATA1, MMC_DATA2, MMC_DATA3);
+  SD_MMC.setPins(MMC_CLK, MMC_CMD, MMC_DATA0, MMC_DATA1, MMC_DATA2, MMC_DATA3);
+  debug("Initializing MMCCard FS...");
+  if (!SD_MMC.begin("/sdcard", MMC_DATA1 == GPIO_NUM_NC ? true : false)) // true = oneBit mode, false = 4 bit mode
+  {
+    debugln("Mount Failed");
+  } else {
+    debugln("Started MMCCard FS");
+  }
+#else // USE_SPI_CARD
+    debug("Initializing LittleFS...");    
     if (!LittleFS.begin(true)) // FORMAT_LITTLEFS_IF_FAILED
-    debugln(" Mount Failed");
-  else
-    debugln(" Started ");
-  
-    File file = LittleFS.open(JSONCONFIGFILE, "r");
+      debugln(" Mount Failed");
+    else
+      debugln("Started LittleFS ");
+#endif
+    File file = FILESYSTEM.open(JSONCONFIGFILE, "r");
     if (file)
     {
       deserializeJson(Settingsdoc, file);

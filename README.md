@@ -11,7 +11,7 @@
 # ESP-RedCanary
 
 This is the ESP-RedCanary example for esp-arduino ESP32/S2/S3/C3/C5/C6 Not yet supported ESP32-C2/C61/P4.
-You can best use the ESP32-S3 and then the 16MB version ( or the 32MB if you can get it)  
+You can best use the ESP32-S3 16MB CAM version, that has SDCard slot ( or the 32MB if you can get it)  
 And only the ESP32S3 8MB is used for development at the moment that has OTA.
 
 It still will need a lot of work so it is "Under-Construction" (Q2-2026) 
@@ -33,9 +33,12 @@ You can find the IP by using a serial monitor You can find a Serial monitor for 
 You can find a link the to [Youtube](https://youtu.be/SGOuzqJMnVM) for the SPIFFS version
 
 ToDo:
-- Max the log.txt
+- Max log file size
+- Max number of log files
 - Add the ESP32-C2
 - Add the ESP32-C61
+- Add MMC SDCard support for ESP32-S3 CAM 16MB  
+- Add SPI SDCard Support
 - Add a jdbc/ODBC database client
 - Add the MAC settings
 - Do more Testing

@@ -54,15 +54,15 @@ void logCommand(String webHook, String ip, uint16_t port, String command) {
   if(LogWhitelisted() || !Whitelisted) 
     { 
       
-      size_t maxfilesize= LittleFS.totalBytes()/3; // limit log file to 1/3 of total FS size
-      File logFile = LittleFS.open(logPath, FILE_APPEND);
+      size_t maxfilesize= FILESYSTEM.totalBytes()/3; // limit log file to 1/3 of total FS size
+      File logFile = FILESYSTEM.open(logPath, FILE_APPEND);
       debugf("logfile size: %d / %d\n", logFile.size(), maxfilesize);
       
       if( logFile.size()> maxfilesize ) {
         logFile.close();
-        LittleFS.remove(OldlogPath);
-        LittleFS.rename(logPath, OldlogPath); // archive old log
-        logFile = LittleFS.open(logPath, FILE_APPEND);
+        FILESYSTEM.remove(OldlogPath);
+        FILESYSTEM.rename(logPath, OldlogPath); // archive old log
+        logFile = FILESYSTEM.open(logPath, FILE_APPEND);
       }
       if (!logFile) return;
 

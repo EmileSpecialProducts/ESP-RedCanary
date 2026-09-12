@@ -24,9 +24,9 @@ void HandelNotFount(AsyncWebServerRequest *request, String Directory, String web
         debugf("%s\n", (Directory + request->url()).c_str());
         if (request->method() == AsyncWebRequestMethod::HTTP_GET)
         {
-            if (LittleFS.exists(Directory + request->url())) // exists will give a error in the error log see: https://github.com/espressif/arduino-esp32/issues/7615
+            if (FILESYSTEM.exists(Directory + request->url())) // exists will give a error in the error log see: https://github.com/espressif/arduino-esp32/issues/7615
             {
-                request->send(LittleFS, Directory + request->url(), String(), false);
+                request->send(FILESYSTEM, Directory + request->url(), String(), false);
             }
             else
             {
