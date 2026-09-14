@@ -132,9 +132,10 @@ def PostBuild(source, target, env):
         destination = os.getcwd() + "/firmware" 
         if not os.path.exists(destination):
             os.mkdir(destination)
-        destination = (
-            destination + "/" + board_mcu + "_" + flashsize + "_" + board_boot_mode
-        )  
+        destination = (destination + "/" +pioenv ) 
+        #destination = (
+        #    destination + "/" + board_mcu + "_" + flashsize + "_" + board_boot_mode
+        #)  
         if not os.path.exists(destination):
             os.mkdir(destination)
         print("destination = " + destination)
