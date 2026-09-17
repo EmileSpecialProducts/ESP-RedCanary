@@ -356,6 +356,21 @@ function createTree(element, editor) {
   function addList(parent, path, items) {
     var list = document.createElement("ul");
     parent.appendChild(list);
+    //console.log(items);
+    items.sort((a, b) => {
+        const typeA = a.type.toUpperCase(); // ignore upper and lowercase
+        const typeB = b.type.toUpperCase(); // ignore upper and lowercase
+        if (typeA < typeB) return -1;
+        if (typeA > typeB) return 1;        
+            const nameA = a.name.toUpperCase(); // ignore upper and lowercase
+            const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;        
+            // names must be equal
+            return 0;
+      });
+    //console.log(items);
+
     var ll = items.length;
     for (var i = 0; i < ll; i++) {
       var item = items[i];
