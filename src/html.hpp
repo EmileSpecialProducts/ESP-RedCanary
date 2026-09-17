@@ -164,6 +164,22 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     </table>
     </section>
 
+    <section>
+    <h1>MCP simulator</h1>
+    <table>
+    <tr>
+    <td><label for="Mcp_enable">MCP:</label></td>
+    <td><input type="checkbox" id="Mcp_enable" name="Mcp_enable"></td>
+    <td>Expose the simulated MCP server at /mcp on each enabled HTTP listener</td>
+    </tr>
+    <tr>
+    <td><label for="Mcp_url">Mcp_url:</label></td>
+    <td><input type="text" id="Mcp_url" name="Mcp_url"></td>
+    <td>This URL is triggered when an MCP request is received</td>
+    </tr>
+    </table>
+    </section>
+
 <section>
     <h1>Https (443)</h1> 
     <table  id="Https_table">
@@ -189,6 +205,11 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     <td></td>
     </tr>
     <tr>
+          <td><label for="HttpaPort">Setup port number:</label></td>
+          <td><input type="number" id="HttpaPort" name="HttpaPort"></td>
+          <td>This is the port number used by the alternate HTTP server</td>
+        </tr>
+        <tr>
     <td><label for="Httpa_url">Httpa_url:</label></td>
     <td><input type="text" id="Httpa_url" name="Httpa_url"></td>
     <td>This is the URL that will be triggered when the Canary is activated</td>
@@ -393,6 +414,9 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
         if(typeof data.ServerName !== 'string' || data.ServerName.length==0) data.ServerName=undefined;
         setElementId('ServerName',data.ServerName,"ESPRedCanary")
         setElementId('ServerPort',data.ServerPort,80);
+        if( ! data.Mcp )  data.Mcp={};
+        setElementId('Mcp_enable',data.Mcp.enable,false);
+        setElementId('Mcp_url',data.Mcp.url);
         if( ! data.Http )  data.Http={};
         setElementId('Http_enable',data.Http.enable);
         setElementId('Http_url',data.Http.url);
@@ -401,6 +425,7 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
         setElementId('Https_url',data.Https.url);
             if( ! data.Httpa )  data.Httpa={};
         setElementId('Httpa_enable',data.Httpa.enable);
+          setElementId('HttpaPort',data.Httpa.port,8080);
         setElementId('Httpa_url',data.Httpa.url); 
         if( ! data.SSH )  data.SSH={};
         setElementId('SSH_enable',data.SSH.enable);
@@ -434,12 +459,16 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
         ServerName: document.getElementById('ServerName').value,
         ServerPort: parseInt(document.getElementById('ServerPort').value),
 
+           Mcp:{enable: document.getElementById('Mcp_enable').checked,
+             url: document.getElementById('Mcp_url').value},
+
         Http:{enable: document.getElementById('Http_enable').checked ,
               url: document.getElementById('Http_url').value
             },
         Https:{enable: document.getElementById('Https_enable').checked ,
               url: document.getElementById('Https_url').value},
         Httpa:{enable: document.getElementById('Httpa_enable').checked ,
+            port: parseInt(document.getElementById('HttpaPort').value),
               url: document.getElementById('Httpa_url').value},
               
         SSH:{enable: document.getElementById('SSH_enable').checked ,
