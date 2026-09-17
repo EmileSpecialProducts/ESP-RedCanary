@@ -43,31 +43,6 @@ void InitWhitelisted()
 {
 
 }
-bool LogWhitelisted()
-{
-    if(Settingsdoc["Whitelisted"]["logEnable"].is<bool>())
-    {
-          if(Settingsdoc["Whitelisted"]["logEnable"]==true)
-          {
-              debugln("Logging Whitelisted IPs is Enabled");
-              return true;
-          }
-    }
-    return true;    
-}
-
-bool CanryWhitelisted()
-{
-    if(Settingsdoc["Whitelisted"]["SEMEnable"].is<bool>())
-    {
-          if(Settingsdoc["Whitelisted"]["SEMEnable"]==true)
-          {
-              debugln("SEMEnable Whitelisted IPs is Enabled");
-              return true;
-          }
-    }
-    return true;    
-}
 
 bool IsWhitelisted(String ip)
 {
