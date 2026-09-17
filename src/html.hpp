@@ -1,8 +1,7 @@
 #include <arduino.h>
 
 const uint8_t style_css[] PROGMEM = R"rawliteral(
-
- body {
+body {
 	background: #36393e;
   margin-right: 10%;
   margin-left: 10% ;
@@ -56,6 +55,7 @@ td:nth-child(1) {
 }
 
 td:nth-child(2) {
+   width: 20%;	
 }
 
 h1 {
@@ -139,43 +139,60 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     <h1>Canarytokens</h1> 
     <table>
     <tr>
-            <td><label for="canarytokenURL">canarytokenURL:</label></td>
+            <td><label for="canarytokenURL">Canary token URL:</label></td>
             <td><input type="text" id="canarytokenURL" name="canarytokenURL"></td> 
             <td> This is the Default canarytoken, you can regester a Token at <a href="https://canarytokens.com" target="_blank">canarytokens.com</a>
             </td>
     </tr>
     </table>
     </section>
-
+    <section>
+    <h1>Loging</h1> 
+    <table  id="Loging_table">
+    <tr> 
+      <td><label for="Loging_enable">Loging Enable:</label></td>
+      <td><input type="checkbox" id="Loging_enable" name="Loging_enable" onclick="UpdateHide()"></td> 
+      <td></td>
+    </tr>
+    <tr>
+      <td><label for="Loging_file">FileName:</label></td>
+      <td><input type="text" id="Loging_file" name="Loging_file" placeholder="CanaryLog"></td>
+      <td>This is the Filename of the log file</td>
+    </tr>
+    <tr> 
+      <td><label for="LogFileSize">Log File Size:</label></td>
+      <td><input type="number" id="LogFileSize" name="LogFileSize" onclick="UpdateHide()"></td> 
+      <td>The Max size of a log file</td>
+    </tr>
+    <tr> 
+      <td><label for="LogFileNumbers">Number of Logfiles:</label></td>
+      <td><input type="number" id="LogFileNumbers" name="LogFileNumbers" onclick="UpdateHide()"></td> 
+      <td>This is the number of logfiles</td>
+    </tr>
+    </table>
+    </section>
     <section>
     <h1>Http (80)</h1> 
     <table  id="Http_table">
     <tr> 
-    <td><label for="Http_enable">Http:</label></td>
-    <td><input type="checkbox" id="Http_enable" name="Http_enable" onclick="TestHttp()"></td> 
-    <td></td>
+      <td><label for="Http_enable">Http Enable:</label></td>
+      <td><input type="checkbox" id="Http_enable" name="Http_enable" onclick="TestHttp()"></td> 
+      <td></td>
     </tr>
     <tr>
-    <td><label for="Http_url">Http_url:</label></td>
-    <td><input type="text" id="Http_url" name="Http_url"></td>
-    <td>This is the URL that will be triggered when the Canary is activated</td>
+      <td><label for="Http_url">Http url:</label></td>
+      <td><input type="text" id="Http_url" name="Http_url"></td>
+      <td>This is the URL that will be triggered when the Canary is activated</td>
     </tr>
-
-    </table>
-    </section>
-
-    <section>
-    <h1>MCP simulator</h1>
-    <table>
-    <tr>
-    <td><label for="Mcp_enable">MCP:</label></td>
-    <td><input type="checkbox" id="Mcp_enable" name="Mcp_enable"></td>
-    <td>Expose the simulated MCP server at /mcp on each enabled HTTP listener</td>
+    <tr> 
+      <td><label for="HttpMCP_enable">Http Enable:</label></td>
+      <td><input type="checkbox" id="HttpMCP_enable" name="HttpMCP_enable" onclick="TestHttp()"></td> 
+      <td></td>
     </tr>
     <tr>
-    <td><label for="Mcp_url">Mcp_url:</label></td>
-    <td><input type="text" id="Mcp_url" name="Mcp_url"></td>
-    <td>This URL is triggered when an MCP request is received</td>
+      <td><label for="HttpMCP_url">Http MCP url:</label></td>
+      <td><input type="text" id="HttpMCP_url" name="HttpMCP_url"></td>
+      <td>This is the URL that will be triggered when the Canary is activated</td>
     </tr>
     </table>
     </section>
@@ -184,14 +201,24 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     <h1>Https (443)</h1> 
     <table  id="Https_table">
     <tr> 
-    <td><label for="Https_enable">Https:</label></td>
-    <td><input type="checkbox" id="Https_enable" name="Https_enable" onclick="UpdateHide()"></td> 
-    <td></td>
+      <td><label for="Https_enable">Https Enable:</label></td>
+      <td><input type="checkbox" id="Https_enable" name="Https_enable" onclick="UpdateHide()"></td> 
+      <td></td>
     </tr>
     <tr>
-    <td><label for="Https_url">Https_url:</label></td>
-    <td><input type="text" id="Https_url" name="Https_url"></td>
-    <td>This is the URL that will be triggered when the Canary is activated</td>
+      <td><label for="Https_url">Https url:</label></td>
+      <td><input type="text" id="Https_url" name="Https_url"></td>
+      <td>This is the URL that will be triggered when the Canary is activated</td>
+    </tr>
+    <tr> 
+      <td><label for="HttpsMCP_enable">Https Enable:</label></td>
+      <td><input type="checkbox" id="HttpsMCP_enable" name="HttpsMCP_enable" onclick="UpdateHide()"></td> 
+      <td></td>
+    </tr>
+    <tr>
+      <td><label for="HttpsMCP_url">Https MCP url:</label></td>
+      <td><input type="text" id="HttpsMCP_url" name="HttpsMCP_url"></td>
+      <td>This is the URL that will be triggered when the Canary is activated</td>
     </tr>
     </table>
     </section>
@@ -199,20 +226,31 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
  <section>
     <h1>Http alternate (8080)</h1> 
     <table  id="Httpa_table">
+    
     <tr> 
-    <td><label for="Httpa_enable">Httpa:</label></td>
-    <td><input type="checkbox" id="Httpa_enable" name="Httpa_enable" onclick="UpdateHide()"></td> 
-    <td></td>
+        <td><label for="Httpa_enable">Httpa Enable:</label></td>
+        <td><input type="checkbox" id="Httpa_enable" name="Httpa_enable" onclick="UpdateHide()"></td> 
+        <td></td>
     </tr>
     <tr>
-          <td><label for="HttpaPort">Setup port number:</label></td>
-          <td><input type="number" id="HttpaPort" name="HttpaPort"></td>
-          <td>This is the port number used by the alternate HTTP server</td>
-        </tr>
-        <tr>
-    <td><label for="Httpa_url">Httpa_url:</label></td>
-    <td><input type="text" id="Httpa_url" name="Httpa_url"></td>
-    <td>This is the URL that will be triggered when the Canary is activated</td>
+        <td><label for="Httpa_url">Httpa_url:</label></td>
+        <td><input type="text" id="Httpa_url" name="Httpa_url"></td>
+        <td>This is the URL that will be triggered when the Canary is activated</td>
+    </tr>
+    <tr>
+        <td><label for="HttpaPort">Setup port number:</label></td>
+        <td><input type="number" id="HttpaPort" name="HttpaPort"></td>
+        <td>This is the port number that will be used for the Canary Setup Page As the Port 80 will be used for the WebServer trigger</td>
+    </tr>
+    <tr> 
+        <td><label for="HttpaMCP_enable">Httpa MCP Enable:</label></td>
+        <td><input type="checkbox" id="HttpaMCP_enable" name="HttpaMCP_enable" onclick="UpdateHide()"></td> 
+        <td></td>
+    </tr>
+    <tr>
+        <td><label for="HttpaMCP_url">Httpa MCP url:</label></td>
+        <td><input type="text" id="HttpaMCP_url" name="HttpaMCP_url"></td>
+        <td>This is the URL that will be triggered when the Canary is activated</td>
     </tr>
     </table>
     </section>
@@ -221,7 +259,7 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     <h1>SSH (22) </h1> 
     <table id="SSH_table">
     <tr> 
-    <td><label for="SSH_enable">SSH:</label></td>
+    <td><label for="SSH_enable">SSH Enable:</label></td>
     <td><input type="checkbox" id="SSH_enable" name="SSH_enable" onclick="UpdateHide()"></td> 
     <td></td>
     
@@ -238,7 +276,7 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     <h1>Telnet (23) </h1> 
     <table id="Telnet_table">
     <tr> 
-    <td><label for="Telnet_enable">Telnet:</label></td>
+    <td><label for="Telnet_enable">Telnet Enable:</label></td>
     <td><input type="checkbox" id="Telnet_enable" name="Telnet_enable" onclick="UpdateHide()"></td> 
     <td></td>
     
@@ -255,7 +293,7 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     <h1>Ftp (21) </h1> 
     <table id="Ftp_table">
     <tr> 
-    <td><label for="Ftp_enable">Ftp:</label></td>
+    <td><label for="Ftp_enable">Ftp Enable:</label></td>
     <td><input type="checkbox" id="Ftp_enable" name="Ftp_enable" onclick="UpdateHide()"></td> 
     <td></td>
     
@@ -273,7 +311,7 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     <h1>Rdp (3389) </h1> 
     <table id="Rdp_table">
     <tr> 
-    <td><label for="Rdp_enable">Rdp:</label></td>
+    <td><label for="Rdp_enable">Rdp Enable:</label></td>
     <td><input type="checkbox" id="Rdp_enable" name="Rdp_enable" onclick="UpdateHide()"></td> 
     <td></td>
     
@@ -289,7 +327,7 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     <h1>Modbus (502) </h1>
     <table id="Modbus_table">
     <tr>
-    <td><label for="Modbus_enable">Modbus:</label></td>
+    <td><label for="Modbus_enable">Modbus Enable:</label></td>
     <td><input type="checkbox" id="Modbus_enable" name="Modbus_enable" onclick="UpdateHide()"></td>
     <td></td>
     </tr>
@@ -319,12 +357,18 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     </section>
 
   <script>
-    function tablehide( table, show = false)
+    function tablehide( table)
     {
-      for (var i = 1, row; row = table.rows[i]; i++ ) {
-           row.style.display = show ? '':'none';
+      show = false;
+      for (var i = 0, row; row = table.rows[i]; i++ ) {
+        if( table.rows[i].querySelector('input[type="checkbox"]') )
+          {
+           show =table.rows[i].querySelector('input[type="checkbox"]').checked;
+          }
+          table.rows[i].style.display = table.rows[i].querySelector('input[type="checkbox"]') || show ? '' : 'none';
         }
     }
+   
     
     function TestHttp()
     {
@@ -341,14 +385,15 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
     
     function UpdateHide()
     {
-      tablehide(document.getElementById("Http_table") ,document.getElementById('Http_enable').checked); 
-      tablehide(document.getElementById("Https_table") ,document.getElementById('Https_enable').checked); 
-      tablehide(document.getElementById("Httpa_table") ,document.getElementById('Httpa_enable').checked);  
-      tablehide(document.getElementById("SSH_table") ,document.getElementById('SSH_enable').checked);
-      tablehide(document.getElementById("Telnet_table") ,document.getElementById('Telnet_enable').checked);
-      tablehide(document.getElementById("Ftp_table") ,document.getElementById('Ftp_enable').checked);
-      tablehide(document.getElementById("Rdp_table") ,document.getElementById('Rdp_enable').checked);
-      tablehide(document.getElementById("Modbus_table") ,document.getElementById('Modbus_enable').checked);
+      tablehide(document.getElementById("Loging_table") );
+      tablehide(document.getElementById("Http_table") ); 
+      tablehide(document.getElementById("Https_table") ); 
+      tablehide(document.getElementById("Httpa_table") );  
+      tablehide(document.getElementById("SSH_table") );
+      tablehide(document.getElementById("Telnet_table") );
+      tablehide(document.getElementById("Ftp_table") );
+      tablehide(document.getElementById("Rdp_table") );
+      tablehide(document.getElementById("Modbus_table") );
     }
     
     function setElementId( id, value,DefaultValue="") 
@@ -414,19 +459,27 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
         if(typeof data.ServerName !== 'string' || data.ServerName.length==0) data.ServerName=undefined;
         setElementId('ServerName',data.ServerName,"ESPRedCanary")
         setElementId('ServerPort',data.ServerPort,80);
-        if( ! data.Mcp )  data.Mcp={};
-        setElementId('Mcp_enable',data.Mcp.enable,false);
-        setElementId('Mcp_url',data.Mcp.url);
+        if( ! data.Loging )  data.Loging={};
+        setElementId('Loging_enable',data.Loging.enable);
+        setElementId('Loging_file',data.Loging.Loging_file,"canarylog");
+        setElementId('LogFileSize',data.Loging.LogFileSize,100000);
+        setElementId('LogFileNumbers',data.Loging.LogFileNumbers,3);
         if( ! data.Http )  data.Http={};
         setElementId('Http_enable',data.Http.enable);
         setElementId('Http_url',data.Http.url);
+        setElementId('HttpMCP_enable',data.Http.enableMCP);
+        setElementId('HttpMCP_url',data.Http.urlMCP);
             if( ! data.Https )  data.Https={};
         setElementId('Https_enable',data.Https.enable);
         setElementId('Https_url',data.Https.url);
+        setElementId('HttpsMCP_enable',data.Https.enableMCP);
+        setElementId('HttpsMCP_url',data.Https.urlMCP);
             if( ! data.Httpa )  data.Httpa={};
         setElementId('Httpa_enable',data.Httpa.enable);
-          setElementId('HttpaPort',data.Httpa.port,8080);
+        setElementId('HttpaPort',data.Httpa.port,8080);
         setElementId('Httpa_url',data.Httpa.url); 
+        setElementId('HttpaMCP_enable',data.Httpa.enableMCP);
+        setElementId('HttpaMCP_url',data.Httpa.urlMCP); 
         if( ! data.SSH )  data.SSH={};
         setElementId('SSH_enable',data.SSH.enable);
         setElementId('SSH_url',data.SSH.url);
@@ -458,19 +511,28 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
         ServerMAC: document.getElementById('ServerMAC').value,
         ServerName: document.getElementById('ServerName').value,
         ServerPort: parseInt(document.getElementById('ServerPort').value),
-
-           Mcp:{enable: document.getElementById('Mcp_enable').checked,
-             url: document.getElementById('Mcp_url').value},
-
+        Loging:{
+          enable: document.getElementById('Loging_enable').checked ,
+          Loging_file: document.getElementById('Loging_file').value,
+          LogFileSize: parseInt(document.getElementById('LogFileSize').value),
+          LogFileNumbers: parseInt(document.getElementById('LogFileNumbers').value)
+        },
         Http:{enable: document.getElementById('Http_enable').checked ,
-              url: document.getElementById('Http_url').value
+              url: document.getElementById('Http_url').value,
+              enableMCP: document.getElementById('HttpMCP_enable').checked ,
+              urlMCP: document.getElementById('HttpMCP_url').value
             },
         Https:{enable: document.getElementById('Https_enable').checked ,
-              url: document.getElementById('Https_url').value},
+              url: document.getElementById('Https_url').value,
+            enableMCP: document.getElementById('HttpsMCP_enable').checked ,
+              urlMCP: document.getElementById('HttpsMCP_url').value
+            },
         Httpa:{enable: document.getElementById('Httpa_enable').checked ,
             port: parseInt(document.getElementById('HttpaPort').value),
-              url: document.getElementById('Httpa_url').value},
-              
+              url: document.getElementById('Httpa_url').value,
+              enableMCP: document.getElementById('HttpaMCP_enable').checked ,
+              urlMCP: document.getElementById('HttpaMCP_url').value
+            },
         SSH:{enable: document.getElementById('SSH_enable').checked ,
             url: document.getElementById('SSH_url').value},
         Telnet:{enable: document.getElementById('Telnet_enable').checked ,
@@ -537,5 +599,4 @@ const uint8_t Index_html[] PROGMEM = R"rawliteral(
   </script>
 </body>
 </html>
-
 )rawliteral";
