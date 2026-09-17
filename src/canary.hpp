@@ -75,6 +75,7 @@
 #endif
 
 #include <NTPClient.h>   //  https://github.com/arduino-libraries/NTPClient
+#include "Logging.hpp"
 #include "NTP.hpp"
 #include "html.hpp"
 #include "SSH.hpp"
@@ -166,13 +167,8 @@ extern char *host;
 extern const char * canarytokenURL;
 
 void startHoneypot();
-void handleBannerGrab(String webHook,WiFiClient client, uint16_t port, const uint8_t* banner, size_t len);
-void handleBannerGrab(String webHook,WiFiClient client, uint16_t port, const char* banner);
-void handleHoneypotClient(WiFiClient client);
-String dumpBytes(WiFiClient &c, size_t maxLen = 256, uint32_t timeout = 250);
 void honeypotLoop();
-void logCommand(String webHook,String ip, uint16_t port, String command);
-String escapeJSON(String s);
+
 
 
 #define JSONCONFIGFILE "/config.json"
