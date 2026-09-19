@@ -217,24 +217,6 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_POST,
             Startreboot=true;
             debugln("Rebooting...");
     });
-    server->on("/wifi-config", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
-    {
-        JsonDocument Wifidoc;
-            scanWiFiNetworks(Wifidoc); 
-            debug("scanWiFiNetworks: ");
-            serializeJson(Wifidoc, Serial);
-            debugf("Wifidoc.size()= %d\n",Wifidoc.size());
-          if( Wifidoc.size() == 0 )
-            return request->send(500, "text/plain", "SCAN FAILED\r\n");
-          else
-            {  String response;
-                serializeJson(Wifidoc, response);
-                reply(request, 200, "application/json", response);
-                return;
-                //return request->send(200, "application/json", response);
-            }
-      });
-      
     server->on("/", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
     { request->redirect("/index.html"); });
     

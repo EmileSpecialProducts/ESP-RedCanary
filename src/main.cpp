@@ -275,7 +275,6 @@ void setup(void)
   message += " Build Date: " + String(__DATE__ " " __TIME__);
   Log(message);
   NextTime = millis() + 1000;
-  StartWiFiNetworks();
   CanarySetup();
 }  
 void loop(void)
@@ -286,7 +285,6 @@ void loop(void)
   ArduinoOTA.handle();
   if (OTAUploadBusy == 0)
   { // Do not do things that take time when OTA is busy
-    //server.handleClient();
     CanaryLoop();
   }
 #endif
@@ -320,11 +318,12 @@ void loop(void)
       OTAUploadBusy--;
     if (digitalRead(PIN_BOOT) == LOW)
     {
-      if (++Config_Reset_Counter > 2)
+      if (++Config_Reset_Counter > 5)
       {
-        // open the webserver after 3 seconds
+        // open the webserver after 5 seconds
+        
       }
-      if (++Config_Reset_Counter > 10)
+      if (++Config_Reset_Counter > 15)
       {                 // press the BOOT 10 sec to reset the WifiManager Settings
         WiFiManager wm; // WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
         delay(500);
