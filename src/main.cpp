@@ -37,9 +37,15 @@ void setup(void)
     debugf("esp_idf_version: %d.%d.%d\n" ,ESP_IDF_VERSION_MAJOR ,ESP_IDF_VERSION_MINOR,ESP_IDF_VERSION_PATCH);
     debugf("arduino_version: %d.%d.%d\n" ,ESP_ARDUINO_VERSION_MAJOR,ESP_ARDUINO_VERSION_MINOR,ESP_ARDUINO_VERSION_PATCH);
     debugf("Build Date: " __DATE__ " " __TIME__ "\n");
+#if defined(BOARD_HAS_PSRAM)    
+    if (psramInit()) {
+      debugf("PSRAM size: %u bytes\n", ESP.getPsramSize());
+    } else {
+      debugln("PSRAM is not found.");
+    }
+#endif
 #if defined(USE_SPI_CARD)
   debug("Initializing SDCard FS...");
-
   debugf("USE_SPI_CARD SD_PIN_CS = %d SD_PIN_MOSI = %d SD_PIN_MISO = %d SD_PIN_SCK = %d\n", SD_PIN_CS, SD_PIN_MOSI, SD_PIN_MISO, SD_PIN_SCK);
 
 #if defined(CONFIG_IDF_TARGET_ESP32)
@@ -168,7 +174,7 @@ void setup(void)
 
 #if defined(OTAPASSWORD)
 #warning "OTA enabled and password is set to: " OTAPASSWORD " " 
-  debugln("OTA disabled");
+  debugln("OTA Enabled");
   // Port defaults to 3232
   // ArduinoOTA.setPort(3232);
 
@@ -232,10 +238,10 @@ void setup(void)
   message += " SSID: " + String(WiFi.SSID());
   message += " Rssi: " + String(WiFi.RSSI());
   message += " Total heap: " + String(ESP.getHeapSize() / 1024);
-  message += " Free heap: " + String(ESP.getFreeHeap() / 1024);
-  message += " Total PSRAM: " + String(ESP.getPsramSize() / 1024);
-  message += " Free PSRAM: " + String(ESP.getFreePsram() / 1024);
-  message += " bytes getFreeHeap: " +String(ESP.getFreeHeap()) ; 
+  message += " Kb Free heap: " + String(ESP.getFreeHeap() / 1024);
+  message += " Kb Total PSRAM: " + String(ESP.getPsramSize() / 1024);
+  message += " Kb Free PSRAM: " + String(ESP.getFreePsram() / 1024);
+  message += " Kb getFreeHeap: " +String(ESP.getFreeHeap()) ; 
   message += " byte esp_get_free_heap_size: "+ String(esp_get_free_heap_size());
   message += " byte free internal_heap_size: "+ String(esp_get_free_internal_heap_size());
   message += " byte ArduinoLoopTaskStackSize: "+ String(getArduinoLoopTaskStackSize());
@@ -321,7 +327,7 @@ void loop(void)
       if (++Config_Reset_Counter > 5)
       {
         // open the webserver after 5 seconds
-        
+
       }
       if (++Config_Reset_Counter > 15)
       {                 // press the BOOT 10 sec to reset the WifiManager Settings

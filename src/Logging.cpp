@@ -58,11 +58,6 @@ String escapeJSON(String s) {
 }
 
 void LogTofile(String webHook, String ip, uint16_t port, String command,String Protocol) {
-  debug("Logfile");
-  debug(Loging_enable);
-  debug(Loging_file);
-  debug(LogFileNumbers);
-  debugln(LogFileSize);
   static String Extention=".log"; 
   size_t maxFileSize = LogFileSize;
   int backupCount = LogFileNumbers-1 > 0 ? LogFileNumbers-1 : 0;
@@ -109,13 +104,13 @@ void LogToCanary(String webHook, String ip, uint16_t port, String command,String
       webHook= Settingsdoc["canarytokenURL"].is<const char*>() ? String(Settingsdoc["canarytokenURL"].as<const char*>()) : String("");
   }
   if(webHook.length() == 0){
-      debugln("No Canary Webhook URL configured");
+      //debugln("No Canary Webhook URL configured");
       return;
   }
   
-  debug("Canary Webhook URL: ");
+  //debug("Canary Webhook URL: ");
   String url=webHook + "?SourceIP=" + ip + "&TargetIP="+ WiFi.localIP().toString() +"&TargetHost="+host +"&port=" + String(port) + "&command=" + command +"&Protocol=" +Protocol;
-  debugln(url);
+  //debugln(url);
   if (WiFi.status() == WL_CONNECTED && webHook.length() > 0) {
     HTTPClient http;
     http.begin(url);

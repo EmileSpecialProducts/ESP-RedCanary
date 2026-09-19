@@ -222,7 +222,7 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_POST,
     
     server->onNotFound([](AsyncWebServerRequest *request)
     { 
-        debugf("url NotFound %s , Method =%s\n", request->url().c_str(), request->methodToString());
+        //debugf("url NotFound %s , Method =%s\n", request->url().c_str(), request->methodToString());
         if (request->method() == HTTP_GET)
         {
             if (FILESYSTEM.exists(request->url())) // exists will give a error in the error log see: https://github.com/espressif/arduino-esp32/issues/7615
