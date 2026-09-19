@@ -2,7 +2,6 @@
 #define __CANARY_H__    
 #include <Arduino.h> //  https://github.com/espressif/arduino-esp32/tree/master/cores/esp32
 #include <ArduinoJson.h>
-#include "wifiscan.hpp"
 
 #include <WiFi.h>      // https://github.com/espressif/arduino-esp32/tree/master/libraries/WiFi
 #include <esp_wifi.h>
