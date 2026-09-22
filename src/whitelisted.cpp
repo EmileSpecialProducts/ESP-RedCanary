@@ -46,7 +46,7 @@ void InitWhitelisted()
 
 bool IsWhitelisted(String ip)
 {
-    debugf("Whitelisted IP: %s\n", ip.c_str());
+    debugf("Client IP: %s", ip.c_str());
     // char *apssid=Settingsdoc["apssid"].is<const char*>() ? (char*)Settingsdoc["apssid"].as<const char*>() : (char*)"ESPRedCanary";
     if(Settingsdoc["Whitelisting"]["ips"].is<JsonArray>())
     {
@@ -55,16 +55,14 @@ bool IsWhitelisted(String ip)
         {
             String whitelistEntry = ipno.as<String>();
             whitelistEntry.trim();
-            debugf("Whitelisting IP: %s\n", whitelistEntry.c_str());
+            //debugf("Whitelisting IP: %s\n", whitelistEntry.c_str());
             if (whitelistEntry == ip || matchesIPv4Cidr(ip, whitelistEntry))
             {
-                debugln("Device is Whitelisted");
+                debugln(" Client is Whitelisted");
                 return true;
             }
         }
-    } else
-    {
-        debugln("No Whitelisted IPs found");
-    }
+    } 
+    debugln("");
     return false;    
 }
