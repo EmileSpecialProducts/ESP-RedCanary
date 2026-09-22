@@ -157,7 +157,8 @@ extern NTPClient timeClient;
 #endif
 
 void Log(String Str);
-void setup_webserver(void);
+bool parseMacAddress(const String &value, uint8_t mac[6]);
+void setup_webserver(int);
 void CanarySetup(void);
 void CanaryLoop(void);  
 extern bool Startreboot;
