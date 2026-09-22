@@ -24,7 +24,7 @@ void loop_ssh()
     if (!c) return;
     String ip = c.remoteIP().toString();
     c.print("SSH-2.0-OpenSSH_8.5p1 Debian-1\r\n");
-    logCommand(sshHookweb, ip, 22, "SSH"); // dumpBytes(c)
+    logCommand(sshHookweb, ip, 22, "SSH","SSH"); // dumpBytes(c)
     /* keep the channel open a bit so nmap --script ssh-hostkey can
        finish the key‑exchange probe                           */
     unsigned long t0 = millis();

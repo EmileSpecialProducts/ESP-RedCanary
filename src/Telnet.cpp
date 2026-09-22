@@ -84,7 +84,7 @@ bool readLine(WiFiClient &client, bool echo)
                 TelnetNegotiationState = TELNETNegotiationSB;
                 break;
               default:
-                //logCommand(telnetHookweb,client.remoteIP().toString(), client.localPort(), "Telnet negotiation: unrecognized command: " + String((uint8_t)c));
+                //logCommand(telnetHookweb,client.remoteIP().toString(), client.localPort(), "Telnet negotiation: unrecognized command: " + String((uint8_t)c),"Telnet");
                 TelnetNegotiationState = TELNETNegotiationNONE; // unrecognized command, reset state
                 break;
             }
@@ -105,14 +105,14 @@ bool readLine(WiFiClient &client, bool echo)
                   client.write(Do, sizeof(Do));
                   client.write(c);
                 }
-              //logCommand(telnetHookweb,client.remoteIP().toString(), client.localPort(), "Telnet negotiation: Will option: " + String((uint8_t)c));
+              //logCommand(telnetHookweb,client.remoteIP().toString(), client.localPort(), "Telnet negotiation: Will option: " + String((uint8_t)c),"Telnet");
               // For simplicity, we just ignore the option code and reset state
               TelnetNegotiationState = TELNETNegotiationNONE;
               break;
             case TELNETNegotiationWONT:
             case TELNETNegotiationDONT:
 
-              //logCommand(telnetHookweb,client.remoteIP().toString(), client.localPort(), "Telnet negotiation: " + String(TelnetNegotiationState) + " option: " + String((uint8_t)c));
+              //logCommand(telnetHookweb,client.remoteIP().toString(), client.localPort(), "Telnet negotiation: " + String(TelnetNegotiationState) + " option: " + String((uint8_t)c),"Telnet");
               // For simplicity, we just ignore the option code and reset state
               TelnetNegotiationState = TELNETNegotiationNONE;
               break;
@@ -150,7 +150,7 @@ void loop_telnet()
   static String username = "pi";
   if(!telnetenabled) return;
   if(!Client || !Client.connected()) {
-    if (TelnetState != TELNETDISCONNECTED) logCommand(telnetHookweb," ", 0, "Disconnect user: " + username);
+    if (TelnetState != TELNETDISCONNECTED) logCommand(telnetHookweb," ", 0, "Disconnect user: " + username,"Telnet");
     TelnetState = TELNETDISCONNECTED;
   }
   if (TelnetState == TELNETDISCONNECTED) {  
@@ -171,7 +171,7 @@ void loop_telnet()
     username=Telnetline;
     prompt = username+"@ubuntu:~$ ";
     currentDirectory = "/home/"+username;
-    logCommand(telnetHookweb,Client.remoteIP().toString(), Client.localPort(), "LOGIN username: " + Telnetline); Telnetline="";
+    logCommand(telnetHookweb,Client.remoteIP().toString(), Client.localPort(), "LOGIN username: " + Telnetline,"Telnet"); Telnetline="";
     Client.print("Password: ");
 
     TelnetState = TELNETPASSWORD;
@@ -179,7 +179,7 @@ void loop_telnet()
   }
   if (TelnetState == TELNETPASSWORD) {
 
-    logCommand(telnetHookweb,Client.remoteIP().toString(), Client.localPort(), "LOGIN password: " + Telnetline); Telnetline="";
+    logCommand(telnetHookweb,Client.remoteIP().toString(), Client.localPort(), "LOGIN password: " + Telnetline,"Telnet"); Telnetline="";
     // Simulate the successful login (regardless of credentials)
     Client.println("\r\nWelcome to Ubuntu 20.04.5 LTS (GNU/Linux 5.4.0-109-generic x86_64)");
     Client.println(" * Documentation:  https://help.ubuntu.com");
@@ -191,7 +191,7 @@ void loop_telnet()
   }
   if (TelnetState == TELNETSHELL) {
     // emulate the shell 
-    logCommand(telnetHookweb,Client.remoteIP().toString(), Client.localPort(), "Shell command: " + Telnetline);
+    logCommand(telnetHookweb,Client.remoteIP().toString(), Client.localPort(), "Shell command: " + Telnetline,"Telnet");
     
     //------------------------------------------------
     // 1. Commandes logoff / exit

@@ -1,0 +1,16 @@
+{
+  "name": "ESP-RedCanary",
+  "version": "2026.09.22",
+  "home_assistant_domain": "ESP-RedCanary",
+  "funding_url": "https://github.com/EmileSpecialProducts/ESP-RedCanary",
+  "builds": 
+  [
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        { "path": "./esp32s3_MMC1BIT_CAM_8MB/firmware.factory.bin", "offset": 0 },
+        { "path": "./esp32s3_MMC1BIT_CAM_8MB/littlefs.bin", "offset": 3997696 }
+      ]
+    }
+  ]
+}
