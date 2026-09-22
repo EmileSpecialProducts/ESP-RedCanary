@@ -67,11 +67,8 @@ void Log(String Str)
   LogFile.close();
 }
 extern bool WiFiAPMode;
-void setup_webserver()
+void setup_webserver(int Portnumber )
 {
-  int Portnumber = Settingsdoc["ServerPort"].is<const int>() ? (int)Settingsdoc["ServerPort"].as<const int>() : (int)80; 
-  debugf("Setup WebServer on Port %d\n", Settingsdoc["ServerPort"].as<const int>());
-  debugf("Starting WebServer on Port %d\n", Portnumber);
   server = new AsyncWebServer(Portnumber);
   if(server==nullptr){ debugln("Failed to create AsyncWebServer"); return; }
   server->on("/diskinfo", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
@@ -208,6 +205,15 @@ server->on("/edit", AsyncWebRequestMethod::HTTP_POST,
         request->send(400, "text/plain", "Invalid JSON");
         }
       });
+    server->on("/MAC", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
+    {
+        String MAC_Json= "{\"MAC\":\"" + WiFi.macAddress() + "\"}";
+        AsyncWebServerResponse *response =
+            request->beginResponse(200, "application/json", MAC_Json);
+            request->contentLength();
+            request->send(response);
+            debugln("MAC... = " + MAC_Json);
+    });
     server->on("/reboot", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request)
     {
         AsyncWebServerResponse *response =
