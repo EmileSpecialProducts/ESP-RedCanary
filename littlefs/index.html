@@ -28,7 +28,7 @@
     </tr>
     <tr>
             <td><label for="ServerMAC">MAC:</label></td>
-            <td><input type="text" id="ServerMAC" name="ServerMAC"></td> 
+            <td><input type="text" id="ServerMAC" name="ServerMAC" placeholder="XX:XX:XX:XX:XX:XX"></td> 
             <td><a href="https://udger.com/resources/mac-address-vendor" target="_blank"> Mac List </a></td>
     </tr>
     </table>
@@ -253,7 +253,10 @@
     <button type="button" onclick="AskReboot()">Reboot</button>
     <a href="editor.html" target="_blank"><img width="50" height="50"  src="https://raw.githubusercontent.com/EmileSpecialProducts/EmileSpecialProducts.github.io/refs/heads/main/ESP-RedCanary/editor.png" onerror="this.style.visibility = 'hidden'"></a>
     </section>
-
+  <section>
+    <h1>Credit</h1>
+    <a href="https://github.com/EmileSpecialProducts/ESP-RedCanary" target="_blank">The GitHub Page source</a>
+    </section>
   <script>
     function tablehide( table)
     {
@@ -353,7 +356,12 @@
       })
       .then(data => {        
         data = data || {};
-        setElementId('ServerMAC',data.ServerMAC, "xx:xx:xx:xx:xx:xx");
+        if(typeof data.ServerMAC !== 'string' || data.ServerMAC.length>0)
+            setElementId('ServerMAC',data.ServerMAC );
+          else
+          {
+            SetESPMac();  
+          }
         if(typeof data.ServerName !== 'string' || data.ServerName.length==0) data.ServerName=undefined;
         setElementId('ServerName',data.ServerName,"ESPRedCanary")
         setElementId('ServerPort',data.ServerPort,80);
@@ -472,6 +480,28 @@
       }
     }
     
+    function  SetESPMac()
+    {
+        fetch('/MAC', {
+          method: 'GET',
+        })
+      .then(response => {
+            if (!response.ok) {
+            console.warn('config.json is not available; using default settings');
+            return {};
+        }
+        return response.json();
+        })
+      .catch(error => {
+            console.warn('Could not load MAC; using default settings:', error);
+          return {};
+      })
+      .then(MACdata => {        
+        MACdata = MACdata || {};
+        if(MACdata.MAC.length>0) setElementId('ServerMAC',MACdata.MAC);
+      }) 
+      
+    }
     function  Reboot(){
         fetch('/reboot', {
           method: 'GET',

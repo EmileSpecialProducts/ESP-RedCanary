@@ -116,9 +116,54 @@ void setup(void)
     {
       debugln("Failed to open " JSONCONFIGFILE " file for reading");
     }
+  //WiFi.mode(WIFI_STA);
+  //WiFi.STA.begin();
+  
+  //uint8_t newMACAddress[] = {0x32, 0xAE, 0xA4, 0x07, 0x0D, 0x66};
+  //esp_err_t err = esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]);
+  //if (err == ESP_OK) {
+  //  debugln("Success changing Mac Address");
+  //}
+  //else
+  //debugln("Fail changing Mac Address");
+
+  const String serverMac = Settingsdoc["ServerMAC"].as<String>();
+  uint8_t serverMacBytes[6];
+  if (parseMacAddress(serverMac, serverMacBytes))
+  {
+
+  }
+ #if defined( NOT_IN_USE) 
+  // 1. Initialize Wi-Fi station mode
+  WiFi.mode(WIFI_STA);
+  if (parseMacAddress(serverMac, serverMacBytes))
+  {
+    // 2. Apply custom MAC address before connection manager runs
+    WiFi.softAPmacAddress(&serverMacBytes[0]);
+    WiFi.macAddress();
+    esp_err_t err = esp_wifi_set_mac(WIFI_IF_STA, &serverMacBytes[0]);
+    if (err == ESP_OK) {
+      debugln("Custom MAC set successfully.");
+    } else {
+      debugln("Failed to set custom MAC!");
+    }
+
+    debug("Active MAC: ");
+    debugln(WiFi.macAddress());
+  }
+  WiFi.mode(WIFI_OFF);
+#endif
+  host = Settingsdoc["ServerName"].is<const char*>() ? (char*)Settingsdoc["ServerName"].as<const char*>() : (char *)"ESPRedCanary";    
+  debugf("ServerName = %s\n", host );
+  
   // WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wm;
-
+  if (parseMacAddress(serverMac, serverMacBytes))
+  {
+    wm.setMACAddress(serverMacBytes);
+  }
+ 
+  wm.setHostname(host);
   // reset settings - wipe stored credentials for testing
   // these are stored by the esp library
   //  wm.resetSettings();
@@ -133,7 +178,7 @@ void setup(void)
   //useful to make it all retry or go to sleep
   //in seconds
   wm.setTimeout(180);
-
+  
   res = wm.autoConnect(host); // auto generated AP name from chipid
   // res = wm.autoConnect(DeviceName); // anonymous ap
   // res = wm.autoConnect("AutoConnectAP","password"); // password protected ap
@@ -158,18 +203,20 @@ void setup(void)
   debugln(WiFi.localIP());
   debug("Connecting to ");
   debugln(WiFi.SSID());
-  host = Settingsdoc["ServerName"].is<const char*>() ? (char*)Settingsdoc["ServerName"].as<const char*>() : (char *)"ESPRedCanary";    
-  debugf("ServerName = %s\n", host );
-  WiFi.hostname(host); 
-    
+  //WiFi.hostname(host); 
+  int Portnumber = Settingsdoc["ServerPort"].is<const int>() ? (int)Settingsdoc["ServerPort"].as<const int>() : (int)80; 
   if (MDNS.begin(host))
   {
     MDNS.addService("http", "tcp", 80);
     debugln("MDNS responder started");
     debug("You can now connect to http://");
     debug(host);
-    debug(".local or http://");
-    debugln(WiFi.localIP());
+    debug(".local");
+      if(Portnumber!=80)debugf(":%d",Portnumber);
+    debug(" or http://");
+    debug(WiFi.localIP());
+      if(Portnumber!=80)debugf(":%d",Portnumber);
+    debugln("");
   }
 
 #if defined(OTAPASSWORD)
@@ -219,7 +266,10 @@ void setup(void)
   });
   ArduinoOTA.begin();
 #endif
-  setup_webserver();  
+  debugf("Setup WebServer on Port %d\n", Settingsdoc["ServerPort"].as<const int>());
+  debugf("Starting WebServer on Port %d\n", Portnumber);
+
+  setup_webserver(Portnumber);  
 
   timeClient.begin();
   timeClient.setUpdateInterval(1000 * 60 * 60 * 24); // 24 uur
