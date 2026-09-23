@@ -150,8 +150,8 @@ void HandelNotFount(AsyncWebServerRequest *request, String Directory, String web
         int port = request->client()->localPort();
         logCommand(webHook,ip, port, payload,Protocol);
         
-        debugf("HandelNotFount %s , Method =%s\n", request->url().c_str(), request->methodToString());
-        debugf("%s\n", (Directory + request->url()).c_str());
+        //debugf("HandelNotFount %s , Method =%s\n", request->url().c_str(), request->methodToString());
+        //debugf("%s\n", (Directory + request->url()).c_str());
         if (request->method() == AsyncWebRequestMethod::HTTP_GET)
         {
             if (FILESYSTEM.exists(Directory + request->url())) // exists will give a error in the error log see: https://github.com/espressif/arduino-esp32/issues/7615
