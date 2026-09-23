@@ -16,7 +16,9 @@ void loop_ftp()
   if(ftpenabled) 
   {
   /* ---------- FTP : ProFTPD 1.3.7c ---------- */
-  if (WiFiClient c = ftpServer.accept())
-    handleBannerGrab(ftpHookweb,c, 21, "220 ProFTPD 1.3.7c Server (Debian) [::ffff:192.168.1.10]\r\n");
+  if (WiFiClient client = ftpServer.accept()){
+    handleBannerGrab(ftpHookweb,client, 21, "220 ProFTPD 1.3.7c Server (Debian) [::ffff:192.168.1.10]\r\n");
+    logCommand(ftpHookweb, client.remoteIP().toString(), 21, "FTP login","FTP"); 
+    }
   }  
 }
