@@ -66,7 +66,7 @@ namespace {
 
     size_t responseLength = 0;
   logCommand(modbusHookweb, modbusClient.remoteIP().toString(), ModbusPort,
-                "Request Modbus/TCP frame: " + bytesToHex(request, requestLength) + " function=" + String(function) + " UnitId=" + String(UnitId));
+                "Request Modbus/TCP frame: " + bytesToHex(request, requestLength) + " function=" + String(function) + " UnitId=" + String(UnitId),"Modbus");
     if (requestLength < 8) return makeExceptionResponse(request, 3, response);
     memcpy(response, request, 4);
     response[6] = request[6];
@@ -146,7 +146,7 @@ namespace {
 
     if (protocolId != 0 || protocolLength < 2 || protocolLength > 253) {
       logCommand(modbusHookweb, modbusClient.remoteIP().toString(), ModbusPort,
-                "Invalid Modbus/TCP frame: " + bytesToHex(modbusBuffer, modbusBufferLength) + "protocolId=" + String(protocolId) + " protocolLength=" + String(protocolLength) + " UnitId=" + String(UnitId));
+                "Invalid Modbus/TCP frame: " + bytesToHex(modbusBuffer, modbusBufferLength) + "protocolId=" + String(protocolId) + " protocolLength=" + String(protocolLength) + " UnitId=" + String(UnitId),"Modbus");
       modbusBufferLength = 0;
       return;
     }
@@ -158,7 +158,7 @@ namespace {
 
     uint8_t response[ModbusBufferSize];
     const size_t responseLength = makeResponse(modbusBuffer, frameLength, response);
-    //logCommand(modbusHookweb, modbusClient.remoteIP().toString(), ModbusPort,"Modbus/TCP response:" + bytesToHex(response, responseLength));
+    //logCommand(modbusHookweb, modbusClient.remoteIP().toString(), ModbusPort,"Modbus/TCP response:" + bytesToHex(response, responseLength),"Modbus");
     modbusClient.write(response, responseLength);
 
     const size_t remaining = modbusBufferLength - frameLength;
@@ -191,7 +191,7 @@ void loop_Modbus()
   }
   if (modbusBufferLength == ModbusBufferSize && modbusClient.available()) {
     logCommand(modbusHookweb, modbusClient.remoteIP().toString(), ModbusPort,
-               "Oversized Modbus/TCP frame");
+               "Oversized Modbus/TCP frame","Modbus");
     modbusBufferLength = 0;
     while (modbusClient.available()) modbusClient.read();
     return;
